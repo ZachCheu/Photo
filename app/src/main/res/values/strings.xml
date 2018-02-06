@@ -22,4 +22,5 @@
 
     <string name="album_name">CameraApp</string>
     <string name="share">share</string>
+    <string name="checked">checked</string>
 </resources>

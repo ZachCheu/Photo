@@ -11,11 +11,23 @@
         android:src="@drawable/shot_placeholder"
         android:contentDescription="@string/shot_image"/>
 
+    <ImageButton
+        android:id="@+id/shot_card_check"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_check_white_24dp"
+        android:layout_gravity="center"
+        android:visibility="invisible"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="@string/checked"/>
+
     <View
         android:id="@+id/shot_clickable_cover"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="true"
         android:background="?attr/selectableItemBackground" />
+
+
 
 </android.support.v7.widget.CardView>
