@@ -65,6 +65,7 @@ public class ShotSaver {
     }
 
     public File createImageFile() throws IOException {
+        System.out.println("--------------------" + "Created a file");
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = JPEG_FILE_PREFIX + timeStamp + "_";
         File albumF = getAlbumDir();

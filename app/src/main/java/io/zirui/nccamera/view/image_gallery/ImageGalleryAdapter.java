@@ -2,7 +2,6 @@ package io.zirui.nccamera.view.image_gallery;
 
 import android.content.Context;
 import android.graphics.Point;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -70,13 +69,12 @@ public class ImageGalleryAdapter extends RecyclerView.Adapter{
         }else{
             imageViewHolder.check.setVisibility(View.INVISIBLE);
             //imageViewHolder.clickableCover.setBackgroundColor(0);
-            //imageViewHolder.clickableCover.setBackgroundColor(ContextCompat.getColor(context, R.color.list_item_normal_state));
         }
     }
 
     @Override
     public int getItemCount() {
-        return data.size();
+        return data.size() == 0 ? 0 : data.size() - 1;
     }
 
     // Display#getSize(Point)

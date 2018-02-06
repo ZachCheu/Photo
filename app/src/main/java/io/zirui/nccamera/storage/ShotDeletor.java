@@ -25,6 +25,7 @@ public class ShotDeletor extends AsyncTask<Void, Void, Boolean> {
         Boolean hasError = false;
         try {
             for(Shot shot : shots){
+                //System.out.println("--------------------" + "want to be delete" + shot.uri.toString());
                 if (!deleteShot(shot.uri)){
                     hasError = true;
                     break;
@@ -41,7 +42,7 @@ public class ShotDeletor extends AsyncTask<Void, Void, Boolean> {
         boolean result = false;
         int numRows = context.getContentResolver().delete(uri, null, null);
         if (numRows == 1){
-            lauchFileScan();
+            //lauchFileScan();
             result = true;
         }
         return result;

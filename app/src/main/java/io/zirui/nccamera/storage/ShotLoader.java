@@ -122,6 +122,7 @@ public class ShotLoader extends AsyncTaskLoader<List<Shot>> {
                 long dateModified = cursor.getLong(dateModifiedColNum);
                 int orientation = cursor.getInt(orientationColNum);
 
+                //System.out.println("--------------------" + Uri.withAppendedPath(contentUri, Long.toString(id)) + "--------------------");
                 data.add(new Shot(id, Uri.withAppendedPath(contentUri, Long.toString(id)),
                         mimeType, dateTaken, dateModified, orientation, type));
             }
