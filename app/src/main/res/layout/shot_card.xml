@@ -13,8 +13,8 @@
 
     <ImageButton
         android:id="@+id/shot_card_check"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:src="@drawable/ic_check_white_24dp"
         android:layout_gravity="center"
         android:visibility="invisible"
@@ -23,11 +23,12 @@
 
     <View
         android:id="@+id/shot_clickable_cover"
+        android:src="@drawable/shot_placeholder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="true"
-        android:background="?attr/selectableItemBackground" />
-
+        android:background="?attr/selectableItemBackground"/>
+    <!--android:background="?attr/selectableItemBackground"-->
 
 
 </android.support.v7.widget.CardView>

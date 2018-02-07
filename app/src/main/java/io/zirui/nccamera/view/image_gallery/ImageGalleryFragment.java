@@ -104,6 +104,7 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), MATRIX_NUMBER));
         recyclerView.addItemDecoration(new ImageGalleryDecoration(getResources().getDimensionPixelSize((R.dimen.spacing_xsmall))));
         recyclerView.setHasFixedSize(true);
+        recyclerView.addOnItemTouchListener(recyclerItemClickListener);
     }
 
     @Override
@@ -115,18 +116,6 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
                 shotSaver.handleBigCameraPhoto();
             }
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        recyclerView.addOnItemTouchListener(recyclerItemClickListener);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        recyclerView.removeOnItemTouchListener(recyclerItemClickListener);
     }
 
     @Override

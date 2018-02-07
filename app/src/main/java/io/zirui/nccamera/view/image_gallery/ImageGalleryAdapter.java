@@ -2,6 +2,7 @@ package io.zirui.nccamera.view.image_gallery;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -64,9 +65,12 @@ public class ImageGalleryAdapter extends RecyclerView.Adapter{
             }
         });
         if(selected_usersList.contains(shot)){
-            //imageViewHolder.clickableCover.setBackgroundColor(ContextCompat.getColor(context, R.color.list_item_selected_state));
+            //imageViewHolder.clickableCover.setBackgroundColor(ContextCompat.getColor(context, R.color.list_item_selected_state)).with;
+            //imageViewHolder.clickableCover.getBackground().setAlpha(128);
             imageViewHolder.check.setVisibility(View.VISIBLE);
+
         }else{
+            //imageViewHolder.clickableCover.getBackground().setAlpha(0);
             imageViewHolder.check.setVisibility(View.INVISIBLE);
             //imageViewHolder.clickableCover.setBackgroundColor(0);
         }
