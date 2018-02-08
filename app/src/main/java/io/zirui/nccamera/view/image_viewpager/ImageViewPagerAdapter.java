@@ -4,7 +4,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.zirui.nccamera.model.Shot;
@@ -28,12 +27,6 @@ public class ImageViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return shots.size();
-    }
-
-    public void refresh(List<Shot> data){
-        this.shots.clear();
-        this.shots.addAll(data);
-        notifyDataSetChanged();
+        return shots.size() == 0 ? 0 : shots.size() - 1;
     }
 }

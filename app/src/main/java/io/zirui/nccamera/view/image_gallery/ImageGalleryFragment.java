@@ -125,7 +125,6 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(Loader<List<Shot>> loader, List<Shot> data) {
-        //System.out.println("--------------------I'm Here");
         adapter =
                 new ImageGalleryAdapter(getContext(), data, multiselect_list, new ImageGalleryAdapter.OnClickImageListener() {
                     @Override
@@ -146,7 +145,6 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
 
     private void refreshAdapter() {
         adapter.selected_usersList = multiselect_list;
-        //System.out.println("--------------------" + "has: " + multiselect_list.size());
         adapter.notifyDataSetChanged();
     }
 
@@ -159,15 +157,25 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
 
     private void multi_select(int position) {
         if (mActionMode != null) {
-            if (multiselect_list.contains(adapter.data.get(position)))
+            if (multiselect_list.contains(adapter.data.get(position))){
+                if(multiselect_list.size() == 1){
+                    mActionMode.finish();
+                    mActionMode = null;
+                    isMultiSelect = false;
+                    multiselect_list.clear();
+                    refreshAdapter();
+                    return;
+                }
                 multiselect_list.remove(adapter.data.get(position));
-            else
+            }else{
                 multiselect_list.add(adapter.data.get(position));
+            }
 
-            if (multiselect_list.size() > 0)
+            if (multiselect_list.size() > 0){
                 mActionMode.setTitle("" + multiselect_list.size());
-            else
+            }else{
                 mActionMode.setTitle("");
+            }
 
             refreshAdapter();
 
@@ -180,8 +188,6 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
         //        for(int i = 0;i < multiselect_list.size(); i++){
         //            adapter.data.remove(multiselect_list.get(i));
         //        }
-        //        System.out.println("--------------------" + "to be deleted has: " + multiselect_list.size());
-        //        System.out.println("--------------------" + "originally has: " + adapter.data.size());
         // adapter.data.removeAll(multiselect_list);
         // adapter.notifyDataSetChanged();
         if (mActionMode != null) {
@@ -221,8 +227,6 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
             multiselect_list.clear();
             refreshAdapter();
         }
-
-
     };
 
 }

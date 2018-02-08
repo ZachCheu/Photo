@@ -65,14 +65,14 @@ public class ImageGalleryAdapter extends RecyclerView.Adapter{
             }
         });
         if(selected_usersList.contains(shot)){
-            //imageViewHolder.clickableCover.setBackgroundColor(ContextCompat.getColor(context, R.color.list_item_selected_state)).with;
             //imageViewHolder.clickableCover.getBackground().setAlpha(128);
+            imageViewHolder.clickableCover.setBackgroundColor(ContextCompat.getColor(context, R.color.shot_dark_grey));
             imageViewHolder.check.setVisibility(View.VISIBLE);
 
         }else{
             //imageViewHolder.clickableCover.getBackground().setAlpha(0);
+            imageViewHolder.clickableCover.setBackgroundColor(ContextCompat.getColor(context, R.color.shot_light_grey));
             imageViewHolder.check.setVisibility(View.INVISIBLE);
-            //imageViewHolder.clickableCover.setBackgroundColor(0);
         }
     }
 
