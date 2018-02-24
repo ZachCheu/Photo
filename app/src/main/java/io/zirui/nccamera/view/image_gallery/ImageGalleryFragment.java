@@ -34,6 +34,7 @@ import io.zirui.nccamera.model.Shot;
 import io.zirui.nccamera.storage.ShotDeletor;
 import io.zirui.nccamera.storage.ShotLoader;
 import io.zirui.nccamera.storage.ShotSaver;
+import io.zirui.nccamera.storage.ShotSharer;
 import io.zirui.nccamera.utils.ModelUtils;
 import io.zirui.nccamera.view.image_viewpager.ImageViewPagerActivity;
 import io.zirui.nccamera.view.image_viewpager.ImageViewPagerFragment;
@@ -185,14 +186,19 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
     private void deleteShots(){
         new ShotDeletor(new ArrayList<>(multiselect_list), getContext()).execute();
         scanGallery();
-        //        for(int i = 0;i < multiselect_list.size(); i++){
-        //            adapter.data.remove(multiselect_list.get(i));
-        //        }
-        // adapter.data.removeAll(multiselect_list);
-        // adapter.notifyDataSetChanged();
         if (mActionMode != null) {
             mActionMode.finish();
         }
+    }
+
+    private void shareShots(){
+        new ShotSharer(getContext(), multiselect_list).shareImage();
+    }
+
+    private void selectAll(){
+        multiselect_list.clear();
+        multiselect_list.addAll(adapter.data);
+        refreshAdapter();
     }
 
     private ActionMode.Callback mActionModeCallBack = new ActionMode.Callback() {
@@ -212,8 +218,14 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
         @Override
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             switch (menuItem.getItemId()){
+                case R.id.action_select_share:
+                    shareShots();
+                    return true;
                 case R.id.action_select_delete:
                     deleteShots();
+                    return true;
+                case R.id.action_select_allselect:
+                    selectAll();
                     return true;
                 default:
                     return false;

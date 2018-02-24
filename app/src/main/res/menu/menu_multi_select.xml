@@ -2,8 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/action_select_share"
+        android:icon="@drawable/ic_share_white_24dp"
+        android:title="@string/share"
+        app:showAsAction="always"/>
+
     <item android:id="@+id/action_select_delete"
         android:icon="@drawable/ic_delete_white_24dp"
         android:title="@string/delete"
         app:showAsAction="always"/>
+
+    <item android:id="@+id/action_select_allselect"
+        android:title="@string/select_all"
+        app:showAsAction="collapseActionView"/>
 </menu>
