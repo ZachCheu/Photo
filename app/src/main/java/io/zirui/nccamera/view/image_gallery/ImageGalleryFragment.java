@@ -20,17 +20,21 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.gson.reflect.TypeToken;
+import com.surveymonkey.surveymonkeyandroidsdk.SMFeedbackFragment;
+import com.surveymonkey.surveymonkeyandroidsdk.SurveyMonkey;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import android.view.ActionMode;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.zirui.nccamera.R;
 import io.zirui.nccamera.listener.RecyclerItemClickListener;
 import io.zirui.nccamera.model.Shot;
+import io.zirui.nccamera.storage.LocalSPData;
 import io.zirui.nccamera.storage.ShotDeletor;
 import io.zirui.nccamera.storage.ShotLoader;
 import io.zirui.nccamera.storage.ShotSaver;
@@ -38,6 +42,8 @@ import io.zirui.nccamera.storage.ShotSharer;
 import io.zirui.nccamera.utils.ModelUtils;
 import io.zirui.nccamera.view.image_viewpager.ImageViewPagerActivity;
 import io.zirui.nccamera.view.image_viewpager.ImageViewPagerFragment;
+import io.zirui.nccamera.view.survey.SurveyActivity;
+import io.zirui.nccamera.view.survey.SurveyFragment;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -47,6 +53,8 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
     public static final int MATRIX_NUMBER = 3;
 
     private ImageGalleryAdapter adapter;
+
+    private SurveyMonkey sdkInstance;
 
     private boolean isMultiSelect = false;
     private ActionMode mActionMode;
@@ -137,6 +145,11 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
                     }
                 });
         recyclerView.setAdapter(adapter);
+        if (adapter.data.size() >= LocalSPData.SURVEY_TRIGGER_NUMBER && !LocalSPData.loadSurveyRecord(getContext())){
+            sdkInstance = new SurveyMonkey();
+            sdkInstance.onStart(getActivity(), LocalSPData.SAMPLE_APP, LocalSPData.RQ_SM_CODE, LocalSPData.SURVEY_HASH);
+            sdkInstance.startSMFeedbackActivityForResult(getActivity(), LocalSPData.RQ_SM_CODE, LocalSPData.SURVEY_HASH);
+        }
     }
 
     @Override

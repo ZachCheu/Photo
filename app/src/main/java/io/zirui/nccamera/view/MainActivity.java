@@ -18,6 +18,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.zirui.nccamera.R;
 import io.zirui.nccamera.camera.Camera;
+import io.zirui.nccamera.storage.LocalSPData;
 import io.zirui.nccamera.storage.ShotSaver;
 import io.zirui.nccamera.view.image_gallery.ImageGalleryFragment;
 
@@ -95,6 +96,9 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Camera.REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             shotSaver.handleBigCameraPhoto();
+        } else if (requestCode == LocalSPData.RQ_SM_CODE){
+            LocalSPData.storeSurveyRecord(this);
+            Toast.makeText(this, "Thanks for your time!", Toast.LENGTH_LONG).show();
         }
     }
 
