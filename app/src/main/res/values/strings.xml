@@ -25,4 +25,6 @@
     <string name="checked">checked</string>
     <string name="select_all">select all</string>
     <string name="error_prompt">SM SDK Error - see logs</string>
+    <string name="open_drawer">open drawer</string>
+    <string name="close_drawer">close drawer</string>
 </resources>

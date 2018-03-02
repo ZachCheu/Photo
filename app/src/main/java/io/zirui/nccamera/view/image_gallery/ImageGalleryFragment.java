@@ -24,10 +24,14 @@ import com.surveymonkey.surveymonkeyandroidsdk.SMFeedbackFragment;
 import com.surveymonkey.surveymonkeyandroidsdk.SurveyMonkey;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.view.ActionMode;
 import android.widget.Toast;
+
+import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,6 +44,7 @@ import io.zirui.nccamera.storage.ShotLoader;
 import io.zirui.nccamera.storage.ShotSaver;
 import io.zirui.nccamera.storage.ShotSharer;
 import io.zirui.nccamera.utils.ModelUtils;
+import io.zirui.nccamera.view.MainActivity;
 import io.zirui.nccamera.view.image_viewpager.ImageViewPagerActivity;
 import io.zirui.nccamera.view.image_viewpager.ImageViewPagerFragment;
 import io.zirui.nccamera.view.survey.SurveyActivity;
@@ -145,10 +150,14 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
                     }
                 });
         recyclerView.setAdapter(adapter);
-        if (adapter.data.size() >= LocalSPData.SURVEY_TRIGGER_NUMBER && !LocalSPData.loadSurveyRecord(getContext())){
+        //&& !LocalSPData.loadSurveyRecord(getContext())
+        if (adapter.data.size() >= LocalSPData.SURVEY_TRIGGER_NUMBER){
+            String id = LocalSPData.loadRandomID(getContext());
+            Map<String, String> dict = new HashMap<>();
+            dict.put("n", id);
             sdkInstance = new SurveyMonkey();
             sdkInstance.onStart(getActivity(), LocalSPData.SAMPLE_APP, LocalSPData.RQ_SM_CODE, LocalSPData.SURVEY_HASH);
-            sdkInstance.startSMFeedbackActivityForResult(getActivity(), LocalSPData.RQ_SM_CODE, LocalSPData.SURVEY_HASH);
+            sdkInstance.startSMFeedbackActivityForResult(getActivity(), LocalSPData.RQ_SM_CODE, LocalSPData.SURVEY_HASH, new JSONObject(dict));
         }
     }
 
