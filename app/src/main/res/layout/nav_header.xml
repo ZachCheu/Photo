@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/nav_header_height"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_large"
+    android:gravity="bottom"
+    android:background="@color/colorPrimary">
+
+    <TextView
+        android:id="@+id/nav_header_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:textStyle="bold"
+        android:text="@string/your_id_is"
+        style="@style/AppTheme.TextView.Clickable.2.White"/>
+
+    <TextView
+        android:id="@+id/nav_header_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:textStyle="normal|italic"
+        style="@style/AppTheme.TextView.Clickable.2.White"/>
+
+</LinearLayout>

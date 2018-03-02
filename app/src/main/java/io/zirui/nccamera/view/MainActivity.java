@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     ShotSaver shotSaver;
 
+    @BindView(R.id.drawer) NavigationView navigationView;
     @BindView(R.id.fab) FloatingActionButton fab;
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
@@ -66,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         shotSaver = ShotSaver.getInstance(this);
+
+        setupDrawer();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,60 +121,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    private void setupDrawer() {
-//        drawerToggle = new ActionBarDrawerToggle(
-//                this,                  /* host Activity */
-//                drawerLayout,          /* DrawerLayout object */
-//                R.string.open_drawer,         /* "open drawer" description */
-//                R.string.close_drawer         /* "close drawer" description */
-//        );
-//
-//        drawerLayout.addDrawerListener(drawerToggle);
-//
-//        //Set up click listener for drawer
-//        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-//            @Override
-//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                if (item.isChecked()){
-//                    drawerLayout.closeDrawers();
-//                    return true;
-//                }
-//
-//                View headerView = navigationView.getHeaderView(0);
-//
-//                ((TextView) headerView.findViewById(R.id.nav_header_text)).setText(
-//                        Dribbble.getCurrentUser().name);
-//
-//                Fragment fragment = null;
-//                switch (item.getItemId()){
-//                    case R.id.drawer_item_home:
-//                        fragment = ShotListFragment.newInstance();
-//                        setTitle(R.string.title_home);
-//                        break;
-//                    case R.id.drawer_item_likes:
-//                        fragment = ShotListFragment.newInstance();
-//                        setTitle(R.string.title_likes);
-//                        break;
-//                    case R.id.drawer_item_buckets:
-//                        fragment = BucketListFragment.newInstance();
-//                        Toast.makeText(MainActivity.this, "buckets clicked", Toast.LENGTH_LONG).show();
-//                        setTitle(R.string.title_buckets);
-//                        break;
-//                }
-//
-//                drawerLayout.closeDrawers();
-//
-//                if (fragment != null){
-//                    getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.fragment_container, fragment)
-//                            .commit();
-//                    return true;
-//                }
-//
-//                return false;
-//            }
-//        });
-//    }
+    private void setupDrawer() {
+        drawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                drawerLayout,          /* DrawerLayout object */
+                R.string.open_drawer,         /* "open drawer" description */
+                R.string.close_drawer         /* "close drawer" description */
+        );
+
+        drawerLayout.addDrawerListener(drawerToggle);
+
+        View headerView = navigationView.getHeaderView(0);
+
+        ((TextView) headerView.findViewById(R.id.nav_header_id)).setText(id);
+    }
 
 }

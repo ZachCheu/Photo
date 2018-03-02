@@ -15,4 +15,26 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />
 
+    <style name="AppTheme.TextView" />
+
+    <style name="AppTheme.TextView.Clickable">
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:padding">@dimen/spacing_small</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="AppTheme.TextView.2" parent="AppTheme.TextView">
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="AppTheme.TextView.Clickable.2" parent="AppTheme.TextView.Clickable">
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="AppTheme.TextView.Clickable.2.White" parent="AppTheme.TextView.Clickable.2">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
 </resources>

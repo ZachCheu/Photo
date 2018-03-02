@@ -150,13 +150,12 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
                     }
                 });
         recyclerView.setAdapter(adapter);
-        //&& !LocalSPData.loadSurveyRecord(getContext())
-        if (adapter.data.size() >= LocalSPData.SURVEY_TRIGGER_NUMBER){
+        if (adapter.data.size() >= LocalSPData.SURVEY_TRIGGER_NUMBER && !LocalSPData.loadSurveyRecord(getContext())){
             String id = LocalSPData.loadRandomID(getContext());
             Map<String, String> dict = new HashMap<>();
             dict.put("n", id);
             sdkInstance = new SurveyMonkey();
-            sdkInstance.onStart(getActivity(), LocalSPData.SAMPLE_APP, LocalSPData.RQ_SM_CODE, LocalSPData.SURVEY_HASH);
+            //sdkInstance.onStart(getActivity(), LocalSPData.SAMPLE_APP, LocalSPData.RQ_SM_CODE, LocalSPData.SURVEY_HASH, new JSONObject(dict));
             sdkInstance.startSMFeedbackActivityForResult(getActivity(), LocalSPData.RQ_SM_CODE, LocalSPData.SURVEY_HASH, new JSONObject(dict));
         }
     }
