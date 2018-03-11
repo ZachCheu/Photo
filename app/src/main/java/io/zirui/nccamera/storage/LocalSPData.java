@@ -15,7 +15,7 @@ public class LocalSPData {
     public static final String SAMPLE_APP = "Camera App";
     public static final int RQ_SM_CODE = 2;
     public static final String SURVEY_HASH = "Q5GPCRQ"; // Should be replaced by real hash!!
-    public static final int SURVEY_TRIGGER_NUMBER = 25;
+    public static final int SURVEY_TRIGGER_NUMBER = 3;
     public static final String SM_ERROR = "smError";
 
     public static final String SP = "share_preference";
