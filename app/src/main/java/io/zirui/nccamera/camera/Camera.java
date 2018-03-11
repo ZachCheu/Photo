@@ -3,6 +3,7 @@ package io.zirui.nccamera.camera;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -18,22 +19,22 @@ public class Camera {
 
     public static final int REQUEST_IMAGE_CAPTURE = 1;
 
-    public static void takePhoto(@NonNull Activity activity, ShotSaver shotSaver){
+    public static void takePhoto(@NonNull Activity activity, ShotSaver shotSaver, Location location){
         try {
-            dispatchTakePictureIntent(activity, shotSaver);
+            dispatchTakePictureIntent(activity, shotSaver, location);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void dispatchTakePictureIntent(@NonNull Activity activity, ShotSaver shotSaver) throws IOException {
+    private static void dispatchTakePictureIntent(@NonNull Activity activity, ShotSaver shotSaver, Location location) throws IOException {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
             // Create the File where the photo should go
             File photoFile;
             try {
-                photoFile = shotSaver.createImageFile();
+                photoFile = shotSaver.createImageFile(location);
             } catch (IOException ex) {
                 // Error occurred while creating the File
                 ex.printStackTrace();

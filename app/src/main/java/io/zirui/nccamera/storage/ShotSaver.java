@@ -2,10 +2,13 @@ package io.zirui.nccamera.storage;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,10 +67,10 @@ public class ShotSaver {
         return storageDir;
     }
 
-    public File createImageFile() throws IOException {
-        System.out.println("--------------------" + "Created a file");
+    public File createImageFile(Location mLastLocation) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = JPEG_FILE_PREFIX + timeStamp + "_";
+        String locationStamp = mLastLocation.getLongitude() + "_" + mLastLocation.getLatitude();
+        String imageFileName = JPEG_FILE_PREFIX + timeStamp + "_" + locationStamp;
         File albumF = getAlbumDir();
         File imageF = File.createTempFile(imageFileName, JPEG_FILE_SUFFIX, albumF);
         mCurrentPhotoPath = imageF.getAbsolutePath();
