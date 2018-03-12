@@ -69,7 +69,8 @@ public class ShotSaver {
 
     public File createImageFile(Location mLastLocation) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String locationStamp = mLastLocation != null ? "[" + mLastLocation.getLongitude() + "_" + mLastLocation.getLatitude() + "]": "null";
+        String locationStamp = mLastLocation != null ? mLastLocation.getLongitude() + "_" + mLastLocation.getLatitude(): "null";
+        locationStamp = "[" + locationStamp + "]_";
         String imageFileName = JPEG_FILE_PREFIX + timeStamp + "_" + locationStamp;
         File albumF = getAlbumDir();
         File imageF = File.createTempFile(imageFileName, JPEG_FILE_SUFFIX, albumF);

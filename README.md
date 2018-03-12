@@ -1,4 +1,4 @@
-# NCcamera (BETA)
+# Photo (BETA)
 
 <div style="display:flex;">
 <img alt="Gallery" src="http://i64.tinypic.com/1176wcx.png" width="30%">
@@ -7,13 +7,7 @@
 </div>
 
 
-A simple but efficient gallery&camera app for Android beginners.
-
-To a Android beginner, the first app is always the hardest. However, most exellent projects have too much personaliteis which make them hard to understand. This project is aiming to eliminate the obstacles:
-1. Code style is simple and straightforward.
-2. Try to use optimized way to meet the demand or solve the problem.
-3. Only use three-party library when it is necessary.
-
+A simple but efficient gallery&camera app.
 
 It covers:
 1. Use RecyclerView and ViewPager implement seamless interaction between gallery and scrollable detailed image interfaces.
@@ -21,10 +15,9 @@ It covers:
 3. Use AsyncTaskLoader instead of AsyncTask to load local images from specific folder.
 4. User MediaStore to scan local images.
 5. Support multi-selection on the gallery screen.
-6. More features are under construction...
-
-
-
+6. Use SurveyMonkey API to send survey after a triger time.
+7. Use Smart Location to grab GPS location data.
+8. More features are under construction...
 
 
 ## Reference + Tutorial
@@ -49,6 +42,7 @@ It covers:
 1. [Glide](https://github.com/bumptech/glide) – By @bumptech
 2. [ButterKnife](https://github.com/JakeWharton/butterknife) – By @JakeWharton
 3. [PhotoView](https://github.com/chrisbanes/PhotoView) – By @chrisbanes
+4. [Smart Location Library](https://github.com/mrmans0n/smart-location-lib) – By @mrmans0n
 
 
 ## License
