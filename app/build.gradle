@@ -40,5 +40,5 @@ dependencies {
     }
     compile 'com.surveymonkey:surveymonkey-android-sdk:1.0.6'
     compile project(':surveymonkey_android_sdk')
-    implementation 'com.google.android.gms:play-services-location:11.8.0'
+    compile 'io.nlopez.smartlocation:library:3.3.3'
 }
