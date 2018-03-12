@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity{
     SmartLocation smartLocation;
 
     public String id;
+    public String startDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +71,12 @@ public class MainActivity extends AppCompatActivity{
         if (LocalSPData.loadRandomID(this) == null){
             LocalSPData.storeRandomID(this);
         }
-        id = LocalSPData.loadRandomID(this);
+        id = LocalSPData.loadRandomID(this).substring(0, 7);
+
+        if (LocalSPData.loadStartDate(this) == null){
+            LocalSPData.storeStartDate(this);
+        }
+        startDate = LocalSPData.loadStartDate(this);
 
         setSupportActionBar(toolbar);
         // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -194,6 +200,7 @@ public class MainActivity extends AppCompatActivity{
         View headerView = navigationView.getHeaderView(0);
 
         ((TextView) headerView.findViewById(R.id.nav_header_id)).setText(id);
+        ((TextView) headerView.findViewById(R.id.nav_header_startDate)).setText(startDate);
     }
 
 

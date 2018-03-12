@@ -25,4 +25,21 @@
         android:textStyle="normal|italic"
         style="@style/AppTheme.TextView.Clickable.2.White"/>
 
+    <TextView
+        android:id="@+id/nav_header_text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:text="@string/start_from"
+        android:textStyle="bold"
+        style="@style/AppTheme.TextView.Clickable.2.White"/>
+
+    <TextView
+        android:id="@+id/nav_header_startDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:textStyle="normal|italic"
+        style="@style/AppTheme.TextView.Clickable.2.White"/>
+
 </LinearLayout>
