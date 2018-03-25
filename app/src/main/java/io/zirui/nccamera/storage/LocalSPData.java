@@ -1,6 +1,5 @@
 package io.zirui.nccamera.storage;
 
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
@@ -12,11 +11,9 @@ import io.zirui.nccamera.utils.RandomStringUtils;
 
 public class LocalSPData {
 
-    public static final String SAMPLE_APP = "Photo";
     public static final int RQ_SM_CODE = 2;
     public static final String SURVEY_HASH = "Q5GPCRQ"; // Should be replaced by real hash!!
     public static final int SURVEY_TRIGGER_NUMBER = 3;
-    public static final String SM_ERROR = "smError";
 
     private static final String SP = "share_preference";
     private static final String SP_SURVEY_TIMESTAMP = "survey_timestamp";
@@ -37,7 +34,7 @@ public class LocalSPData {
     public static void storeStartDate(@NonNull Context context){
         SharedPreferences sp = getSharedPreference(context);
         SharedPreferences.Editor editor = sp.edit();
-        editor.putString(SP_START_DATE, new SimpleDateFormat("yyyy/MM/dd_HH/mm/ss").format(new Date()));
+        editor.putString(SP_START_DATE, new SimpleDateFormat("yyyy/MM/dd HH:mm").format(new Date()));
         editor.apply();
     }
 
