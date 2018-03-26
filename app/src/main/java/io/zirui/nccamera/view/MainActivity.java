@@ -2,11 +2,15 @@ package io.zirui.nccamera.view;
 
 import android.Manifest;
 import android.Manifest.permission;
+import android.app.Activity;
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -16,11 +20,13 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +68,9 @@ public class MainActivity extends AppCompatActivity{
     public String id;
     public String startDate;
 
+    // Stats
+    private long duration;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +102,12 @@ public class MainActivity extends AppCompatActivity{
             replaceFragment();
         }
 
+        // check usage stats permission.
+        if(!showStats()){
+            Intent intent = new Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            startActivity(intent);
+        }
+
         lastLocation = SmartLocation.with(this).location().getLastLocation();
 
         shotSaver = ShotSaver.getInstance(this);
@@ -108,10 +123,38 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
+    private boolean showStats(){
+        long startTime = new GregorianCalendar(2014, 0, 1).getTimeInMillis();
+        // long endTime = new GregorianCalendar(2016, 0, 1).getTimeInMillis();
+        long endTime = System.currentTimeMillis();
+
+        UsageStatsManager usageStatsManager = (UsageStatsManager)this.getSystemService(Activity.USAGE_STATS_SERVICE);
+        List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, startTime, endTime);
+
+        if(queryUsageStats.size() == 0){
+            return false;
+        }
+
+        for (UsageStats us : queryUsageStats) {
+            if(us.getPackageName().equals("io.zirui.nccamera")){
+                duration = us.getTotalTimeInForeground();
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showStats();
+    }
+
     /**
      * Permissions.
      * */
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean checkAndRequestPermissions(){
         List<String> listPermissionsNeeded = new ArrayList<>();
         if (ContextCompat.checkSelfPermission(this, permission.WRITE_EXTERNAL_STORAGE)
@@ -121,6 +164,10 @@ public class MainActivity extends AppCompatActivity{
         if (ContextCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED){
             listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(this, permission.PACKAGE_USAGE_STATS)
+                != PackageManager.PERMISSION_GRANTED){
+            listPermissionsNeeded.add(Manifest.permission.PACKAGE_USAGE_STATS);
         }
         if (!listPermissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),REQUEST_ID_MULTIPLE_PERMISSIONS);
@@ -155,6 +202,7 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -200,7 +248,8 @@ public class MainActivity extends AppCompatActivity{
         View headerView = navigationView.getHeaderView(0);
 
         ((TextView) headerView.findViewById(R.id.nav_header_id)).setText(id);
-        ((TextView) headerView.findViewById(R.id.nav_header_startDate)).setText(startDate);
+        // ((TextView) headerView.findViewById(R.id.nav_header_startDate)).setText(startDate);
+        ((TextView) headerView.findViewById(R.id.nav_header_startDate)).setText(Long.toString(duration / 50000) + "Minutes");
     }
 
 
