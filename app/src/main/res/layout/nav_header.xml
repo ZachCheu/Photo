@@ -42,4 +42,21 @@
         android:textStyle="normal|italic"
         style="@style/AppTheme.TextView.Clickable.2.White"/>
 
+    <TextView
+        android:id="@+id/nav_header_text3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:text="@string/usage"
+        android:textStyle="bold"
+        style="@style/AppTheme.TextView.Clickable.2.White"/>
+
+    <TextView
+        android:id="@+id/nav_header_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:textStyle="normal|italic"
+        style="@style/AppTheme.TextView.Clickable.2.White"/>
+
 </LinearLayout>

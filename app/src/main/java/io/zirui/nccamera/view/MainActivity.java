@@ -123,6 +123,10 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
+    /**
+     * UsageStats
+     */
+
     private boolean showStats(){
         long startTime = new GregorianCalendar(2014, 0, 1).getTimeInMillis();
         // long endTime = new GregorianCalendar(2016, 0, 1).getTimeInMillis();
@@ -248,8 +252,8 @@ public class MainActivity extends AppCompatActivity{
         View headerView = navigationView.getHeaderView(0);
 
         ((TextView) headerView.findViewById(R.id.nav_header_id)).setText(id);
-        // ((TextView) headerView.findViewById(R.id.nav_header_startDate)).setText(startDate);
-        ((TextView) headerView.findViewById(R.id.nav_header_startDate)).setText(Long.toString(duration / 50000) + "Minutes");
+        ((TextView) headerView.findViewById(R.id.nav_header_startDate)).setText(startDate);
+        ((TextView) headerView.findViewById(R.id.nav_header_duration)).setText(Long.toString(duration / 50000) + " Minutes");
     }
 
 
