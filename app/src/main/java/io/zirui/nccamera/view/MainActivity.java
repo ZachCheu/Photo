@@ -25,6 +25,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -40,6 +43,7 @@ import io.nlopez.smartlocation.location.config.LocationParams;
 import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
 import io.zirui.nccamera.R;
 import io.zirui.nccamera.camera.Camera;
+import io.zirui.nccamera.AnalyticsApplication;
 import io.zirui.nccamera.storage.LocalSPData;
 import io.zirui.nccamera.storage.ShotSaver;
 import io.zirui.nccamera.view.image_gallery.ImageGalleryFragment;
@@ -70,6 +74,9 @@ public class MainActivity extends AppCompatActivity{
 
     // Stats
     private long duration;
+
+    // Google Analytics
+    private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,11 +109,17 @@ public class MainActivity extends AppCompatActivity{
             replaceFragment();
         }
 
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+        mTracker.enableAutoActivityTracking(true);
+        mTracker.set("&uid", id);
+
         // check usage stats permission.
-        if(!showStats()){
-            Intent intent = new Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS);
-            startActivity(intent);
-        }
+        //        if(!showStats()){
+        //            Intent intent = new Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS);
+        //            startActivity(intent);
+        //        }
 
         lastLocation = SmartLocation.with(this).location().getLastLocation();
 
@@ -121,6 +134,21 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
+        // sendScreenImageName();
+    }
+
+    /**
+     * Google Analytics
+     */
+
+    private void sendScreenImageName() {
+        String name = "MainActivity";
+
+        // [START screen_view_hit]
+        Log.i(TAG, "Setting screen name: " + name);
+        mTracker.setScreenName("Image~" + name);
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        // [END screen_view_hit]
     }
 
     /**
@@ -253,9 +281,8 @@ public class MainActivity extends AppCompatActivity{
 
         ((TextView) headerView.findViewById(R.id.nav_header_id)).setText(id);
         ((TextView) headerView.findViewById(R.id.nav_header_startDate)).setText(startDate);
-        ((TextView) headerView.findViewById(R.id.nav_header_duration)).setText(Long.toString(duration / 50000) + " Minutes");
+        // ((TextView) headerView.findViewById(R.id.nav_header_duration)).setText(Long.toString(duration / 50000) + " Minutes");
     }
-
 
     /**
      * Location data and permission request.
