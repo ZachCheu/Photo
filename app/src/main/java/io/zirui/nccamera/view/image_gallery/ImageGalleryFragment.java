@@ -151,7 +151,9 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
                 });
         recyclerView.setAdapter(adapter);
         //&& !LocalSPData.loadSurveyRecord(getContext())
-        if (adapter.data.size() >= LocalSPData.SURVEY_TRIGGER_NUMBER && !LocalSPData.loadSurveyRecord(getContext())){
+        int surveyTriggerPoint = LocalSPData.loadSurveyRecord(getContext());
+        int surveyTriggerNumber = surveyTriggerPoint < LocalSPData.SURVEY_TRIGGER_NUMBERS.length ? LocalSPData.SURVEY_TRIGGER_NUMBERS[surveyTriggerPoint] : Integer.MAX_VALUE;
+        if (adapter.data.size() > surveyTriggerNumber){
             String id = LocalSPData.loadRandomID(getContext());
             Map<String, String> dict = new HashMap<>();
             dict.put("n", id);
