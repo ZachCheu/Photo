@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
@@ -18,7 +19,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +27,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -41,9 +45,9 @@ import io.nlopez.smartlocation.SmartLocation;
 import io.nlopez.smartlocation.location.config.LocationAccuracy;
 import io.nlopez.smartlocation.location.config.LocationParams;
 import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
+import io.zirui.nccamera.AnalyticsApplication;
 import io.zirui.nccamera.R;
 import io.zirui.nccamera.camera.Camera;
-import io.zirui.nccamera.AnalyticsApplication;
 import io.zirui.nccamera.storage.LocalSPData;
 import io.zirui.nccamera.storage.ShotSaver;
 import io.zirui.nccamera.view.image_gallery.ImageGalleryFragment;
@@ -55,6 +59,17 @@ public class MainActivity extends AppCompatActivity{
     private static final String TAG = MainActivity.class.getSimpleName();
 
     ShotSaver shotSaver;
+
+    // Image Firebase Database
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+    private StorageReference userStorageRef;
+
+    // Firebase Database/References
+    private FirebaseDatabase database;
+    private DatabaseReference dataRef;
+    private DatabaseReference dataUser;
+    private DatabaseReference dataSession;
 
     @BindView(R.id.drawer) NavigationView navigationView;
     @BindView(R.id.fab) FloatingActionButton fab;
@@ -71,12 +86,23 @@ public class MainActivity extends AppCompatActivity{
 
     public String id;
     public String startDate;
+    public int sessionCount;
+
+    public long initialStartTime;
+    public long returnStartTime;
+
+    Bundle bundle;
+
+    // indicator for new database entries, so that information doesn't override
+    public int[] activitySwap;
+    public int ignoreThree;
 
     // Stats
     private long duration;
 
     // Google Analytics
     private Tracker mTracker;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +119,7 @@ public class MainActivity extends AppCompatActivity{
             LocalSPData.storeStartDate(this);
         }
         startDate = LocalSPData.loadStartDate(this);
+        sessionCount = LocalSPData.loadAndStoreSession(this);
 
         setSupportActionBar(toolbar);
         // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -121,6 +148,30 @@ public class MainActivity extends AppCompatActivity{
         //            startActivity(intent);
         //        }
 
+        initialStartTime = System.currentTimeMillis();
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+        userStorageRef = storageRef.child(id);
+
+
+
+        // Set up database and create the structure of the database
+        database = FirebaseDatabase.getInstance();
+        dataRef = database.getReference();
+        dataUser = dataRef.child(id);
+        if(dataUser.getKey() != id){
+            dataUser.setValue(id);
+        }
+        String stringSessionCount = String.valueOf(sessionCount);
+        dataSession = dataUser.child(stringSessionCount);
+        dataSession.setValue(stringSessionCount);
+        activitySwap = new int[2];
+        // Three initial calls when opening the app to ignore
+        ignoreThree = 3;
+
+
+        bundle = new Bundle();
+
         lastLocation = SmartLocation.with(this).location().getLastLocation();
 
         shotSaver = ShotSaver.getInstance(this);
@@ -133,8 +184,6 @@ public class MainActivity extends AppCompatActivity{
                 Camera.takePhoto(MainActivity.this, shotSaver, lastLocation);
             }
         });
-
-        // sendScreenImageName();
     }
 
     /**
@@ -311,23 +360,45 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onLocationUpdated(Location location) {
                         lastLocation = location;
-                }
-        });
+                    }
+                });
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         stopLocation();
+        recordMain();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
         startLocation();
+        recordNotMain();
     }
 
     private void stopLocation() {
         SmartLocation.with(this).location().stop();
+    }
+
+    private void recordMain(){
+        Long duration = System.currentTimeMillis() - initialStartTime;
+        if(ignoreThree <= 0) {
+            DatabaseReference mainData = dataSession.child("Main" + activitySwap[0]++);
+            mainData.setValue(duration);
+        }
+        ignoreThree--;
+        returnStartTime = System.currentTimeMillis();
+    }
+
+    private void recordNotMain(){
+        Long duration = System.currentTimeMillis() - returnStartTime;
+        if(ignoreThree <= 0){
+            DatabaseReference notMainData = dataSession.child("Not Main"+activitySwap[1]++);
+            notMainData.setValue(duration);
+        }
+        ignoreThree--;
+        initialStartTime = System.currentTimeMillis();
     }
 }

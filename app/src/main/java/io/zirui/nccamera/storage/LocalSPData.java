@@ -5,10 +5,7 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import io.zirui.nccamera.utils.RandomStringUtils;
 
@@ -26,12 +23,22 @@ public class LocalSPData {
     private static final String SP_SURVEY_TRIGGER_POINT = "survey_trigger_point";
     private static final String SP_RANDOM_ID = "random_id";
     private static final String SP_START_DATE = "start_date";
+    private static final String SP_SESSION = "session_count";
 
     public static int currentTriggerPoint;
 
     private static SharedPreferences getSharedPreference(@NonNull Context context){
         return context.getApplicationContext().getSharedPreferences(
                 SP, Context.MODE_PRIVATE);
+    }
+
+    public static int loadAndStoreSession(@NonNull Context context){
+        SharedPreferences sp = getSharedPreference(context);
+        int sessionCount = sp.getInt(SP_SESSION, 0);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putInt(SP_SESSION, sessionCount+1);
+        editor.apply();
+        return sessionCount;
     }
 
     public static String loadStartDate(@NonNull Context context){

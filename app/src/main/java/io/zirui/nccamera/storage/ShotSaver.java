@@ -8,7 +8,10 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +30,8 @@ public class ShotSaver {
     private String mCurrentPhotoPath;
     private Context context;
     private AlbumStorageDirFactory mAlbumStorageDirFactory;
+    private String imageFileName;
+
 
     private ShotSaver(Context context){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
@@ -35,6 +40,7 @@ public class ShotSaver {
             mAlbumStorageDirFactory = new BaseAlbumDirFactory();
         }
         this.context = context;
+
     }
 
     public static synchronized ShotSaver getInstance(Context context) {
@@ -71,7 +77,7 @@ public class ShotSaver {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String locationStamp = mLastLocation != null ? mLastLocation.getLongitude() + "_" + mLastLocation.getLatitude(): "null";
         locationStamp = "[" + locationStamp + "]_";
-        String imageFileName = JPEG_FILE_PREFIX + timeStamp + "_" + locationStamp;
+        imageFileName = JPEG_FILE_PREFIX + timeStamp + "_" + locationStamp;
         File albumF = getAlbumDir();
         File imageF = File.createTempFile(imageFileName, JPEG_FILE_SUFFIX, albumF);
         mCurrentPhotoPath = imageF.getAbsolutePath();
@@ -80,9 +86,18 @@ public class ShotSaver {
 
     public void galleryAddPic() {
         Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+        String id = LocalSPData.loadRandomID(context).substring(0, 7);
         File f = new File(mCurrentPhotoPath);
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
+        String path = id +"/"+ imageFileName+".png";
+        StorageReference ref = FirebaseStorage.getInstance().getReference(path);
+
+        StorageMetadata imgMetadata = new StorageMetadata.Builder()
+                .setCustomMetadata("text", id + "_"+ imageFileName)
+                .build();
+
+        UploadTask task = ref.putFile(contentUri, imgMetadata);
         context.sendBroadcast(mediaScanIntent);
     }
 

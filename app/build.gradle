@@ -9,6 +9,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled = true
     }
     buildTypes {
         release {
@@ -42,4 +43,8 @@ dependencies {
     compile project(':surveymonkey_android_sdk')
     compile 'io.nlopez.smartlocation:library:3.3.3'
     compile 'com.google.android.gms:play-services-analytics:11.4.2'
+    compile 'com.google.firebase:firebase-core:11.4.2'
+    compile 'com.google.firebase:firebase-database:11.4.2'
+    implementation 'com.google.firebase:firebase-storage:11.4.2'
 }
+apply plugin: 'com.google.gms.google-services'
