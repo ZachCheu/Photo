@@ -31,6 +31,7 @@ public class ShotSaver {
     private Context context;
     private AlbumStorageDirFactory mAlbumStorageDirFactory;
     private String imageFileName;
+    private String id;
 
 
     private ShotSaver(Context context){
@@ -40,6 +41,7 @@ public class ShotSaver {
             mAlbumStorageDirFactory = new BaseAlbumDirFactory();
         }
         this.context = context;
+        id = LocalSPData.loadRandomID(context).substring(0, 7);
 
     }
 
@@ -77,7 +79,7 @@ public class ShotSaver {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String locationStamp = mLastLocation != null ? mLastLocation.getLongitude() + "_" + mLastLocation.getLatitude(): "null";
         locationStamp = "[" + locationStamp + "]_";
-        imageFileName = JPEG_FILE_PREFIX + timeStamp + "_" + locationStamp;
+        imageFileName = JPEG_FILE_PREFIX + timeStamp + "_" + locationStamp + "_" +id;
         File albumF = getAlbumDir();
         File imageF = File.createTempFile(imageFileName, JPEG_FILE_SUFFIX, albumF);
         mCurrentPhotoPath = imageF.getAbsolutePath();
@@ -86,7 +88,6 @@ public class ShotSaver {
 
     public void galleryAddPic() {
         Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
-        String id = LocalSPData.loadRandomID(context).substring(0, 7);
         File f = new File(mCurrentPhotoPath);
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);

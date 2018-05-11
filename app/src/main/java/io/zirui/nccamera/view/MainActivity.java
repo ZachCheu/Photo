@@ -50,6 +50,7 @@ import io.zirui.nccamera.R;
 import io.zirui.nccamera.camera.Camera;
 import io.zirui.nccamera.storage.LocalSPData;
 import io.zirui.nccamera.storage.ShotSaver;
+import io.zirui.nccamera.storage.activityRecorder;
 import io.zirui.nccamera.view.image_gallery.ImageGalleryFragment;
 
 public class MainActivity extends AppCompatActivity{
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity{
     // indicator for new database entries, so that information doesn't override
     public int[] activitySwap;
     public int ignoreThree;
+    public activityRecorder actRec;
 
     // Stats
     private long duration;
@@ -165,11 +167,10 @@ public class MainActivity extends AppCompatActivity{
         String stringSessionCount = String.valueOf(sessionCount);
         dataSession = dataUser.child(stringSessionCount);
         dataSession.setValue(stringSessionCount);
-        activitySwap = new int[2];
+        activitySwap = new int[3];
         // Three initial calls when opening the app to ignore
         ignoreThree = 3;
-
-
+        actRec = new activityRecorder(false, false, false , false);
         bundle = new Bundle();
 
         lastLocation = SmartLocation.with(this).location().getLastLocation();
@@ -181,6 +182,7 @@ public class MainActivity extends AppCompatActivity{
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                actRec.setOnCamera(true);
                 Camera.takePhoto(MainActivity.this, shotSaver, lastLocation);
             }
         });
@@ -223,12 +225,6 @@ public class MainActivity extends AppCompatActivity{
         }
 
         return true;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        showStats();
     }
 
     /**
@@ -364,41 +360,28 @@ public class MainActivity extends AppCompatActivity{
                 });
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        stopLocation();
-        recordMain();
-    }
-
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        startLocation();
-        recordNotMain();
-    }
-
     private void stopLocation() {
         SmartLocation.with(this).location().stop();
     }
 
-    private void recordMain(){
-        Long duration = System.currentTimeMillis() - initialStartTime;
-        if(ignoreThree <= 0) {
-            DatabaseReference mainData = dataSession.child("Main" + activitySwap[0]++);
-            mainData.setValue(duration);
-        }
-        ignoreThree--;
-        returnStartTime = System.currentTimeMillis();
+    @Override
+    protected void onPause() {
+
+        stopLocation();
+        super.onPause();
     }
 
-    private void recordNotMain(){
-        Long duration = System.currentTimeMillis() - returnStartTime;
-        if(ignoreThree <= 0){
-            DatabaseReference notMainData = dataSession.child("Not Main"+activitySwap[1]++);
-            notMainData.setValue(duration);
-        }
-        ignoreThree--;
-        initialStartTime = System.currentTimeMillis();
+    @Override
+    protected void onResume() {
+        showStats();
+        super.onResume();
     }
+
+//    @Override
+//    protected void onUserLeaveHint()
+//    {
+//        Log.e("onUserLeaveHint", "Home button pressed");
+//        actRec.setHomeOrSwitch(false);
+//        super.onUserLeaveHint();
+//    }
 }
