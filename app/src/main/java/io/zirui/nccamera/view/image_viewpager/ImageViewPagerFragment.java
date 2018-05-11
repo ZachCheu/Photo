@@ -10,12 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.gson.reflect.TypeToken;
+
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.zirui.nccamera.R;
 import io.zirui.nccamera.model.Shot;
+import io.zirui.nccamera.storage.ActivityRecorder;
 import io.zirui.nccamera.utils.ModelUtils;
 
 
@@ -44,6 +46,7 @@ public class ImageViewPagerFragment extends Fragment{
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_view_pager, container, false);
         ButterKnife.bind(this, view);
+        ActivityRecorder.onImage = true;
         return view;
     }
 

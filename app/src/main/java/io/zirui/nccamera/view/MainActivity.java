@@ -50,7 +50,7 @@ import io.zirui.nccamera.R;
 import io.zirui.nccamera.camera.Camera;
 import io.zirui.nccamera.storage.LocalSPData;
 import io.zirui.nccamera.storage.ShotSaver;
-import io.zirui.nccamera.storage.activityRecorder;
+import io.zirui.nccamera.storage.ActivityRecorder;
 import io.zirui.nccamera.view.image_gallery.ImageGalleryFragment;
 
 public class MainActivity extends AppCompatActivity{
@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity{
     // indicator for new database entries, so that information doesn't override
     public int[] activitySwap;
     public int ignoreThree;
-    public activityRecorder actRec;
 
     // Stats
     private long duration;
@@ -170,7 +169,6 @@ public class MainActivity extends AppCompatActivity{
         activitySwap = new int[3];
         // Three initial calls when opening the app to ignore
         ignoreThree = 3;
-        actRec = new activityRecorder(false, false, false , false);
         bundle = new Bundle();
 
         lastLocation = SmartLocation.with(this).location().getLastLocation();
@@ -182,7 +180,7 @@ public class MainActivity extends AppCompatActivity{
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                actRec.setOnCamera(true);
+                ActivityRecorder.onCamera = true;
                 Camera.takePhoto(MainActivity.this, shotSaver, lastLocation);
             }
         });
@@ -366,13 +364,14 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onPause() {
-
+        ActivityRecorder.record(dataSession);
         stopLocation();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
+        ActivityRecorder.postRecord(dataSession);
         showStats();
         super.onResume();
     }
