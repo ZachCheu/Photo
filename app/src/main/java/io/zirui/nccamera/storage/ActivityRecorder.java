@@ -1,6 +1,11 @@
 package io.zirui.nccamera.storage;
 
+import android.content.Context;
+import android.location.Location;
+
 import com.google.firebase.database.DatabaseReference;
+
+import io.zirui.nccamera.listener.ActivityMonitorService;
 
 public class ActivityRecorder {
     public static boolean onCamera = false;
@@ -10,8 +15,10 @@ public class ActivityRecorder {
     public static long activityStart;
     public static int ignoreThree = 3;
 
-    public static void record(DatabaseReference dataSession){
+    public static void record(DatabaseReference dataSession, Context context, Location lastLocation){
         if(ignoreThree-- <= 0){
+            ActivityMonitorService recordService = new ActivityMonitorService(context, lastLocation);
+            recordService.startAudioRecording();
             DatabaseReference createSession = dataSession.child("Gallery" + activityCounter[1]++);
             createSession.setValue(getDuration());
             activityStart = System.currentTimeMillis();
@@ -41,21 +48,4 @@ public class ActivityRecorder {
     public static long getActivityStart() {
         return activityStart;
     }
-
-
-//    private boolean isAppIsInBackground(Context context) {
-//        boolean isInBackground = true;
-//        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-//        List<ActivityManager.RunningAppProcessInfo> runningProcesses = am.getRunningAppProcesses();
-//        for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
-//            if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-//                for (String activeProcess : processInfo.pkgList) {
-//                    if (activeProcess.equals(context.getPackageName())) {
-//                        isInBackground = false;
-//                    }
-//                }
-//            }
-//        }
-//        return isInBackground;
-//    }
 }

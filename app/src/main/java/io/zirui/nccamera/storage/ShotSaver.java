@@ -91,14 +91,18 @@ public class ShotSaver {
         File f = new File(mCurrentPhotoPath);
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
-        String path = id +"/"+ imageFileName+".png";
-        StorageReference ref = FirebaseStorage.getInstance().getReference(path);
+        String fileName = imageFileName+".png";
+        String path = id +"/"+ fileName;
+        // path to all images
+        StorageReference all = FirebaseStorage.getInstance().getReference("all/"+fileName);
 
+        // path to user
+        StorageReference ref = FirebaseStorage.getInstance().getReference(path);
         StorageMetadata imgMetadata = new StorageMetadata.Builder()
                 .setCustomMetadata("text", id + "_"+ imageFileName)
                 .build();
-
-        UploadTask task = ref.putFile(contentUri, imgMetadata);
+        UploadTask allTask = all.putFile(contentUri,imgMetadata);
+        UploadTask userTask = ref.putFile(contentUri, imgMetadata);
         context.sendBroadcast(mediaScanIntent);
     }
 

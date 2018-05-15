@@ -8,6 +8,7 @@ import android.app.usage.UsageStatsManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -48,9 +49,9 @@ import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProv
 import io.zirui.nccamera.AnalyticsApplication;
 import io.zirui.nccamera.R;
 import io.zirui.nccamera.camera.Camera;
+import io.zirui.nccamera.storage.ActivityRecorder;
 import io.zirui.nccamera.storage.LocalSPData;
 import io.zirui.nccamera.storage.ShotSaver;
-import io.zirui.nccamera.storage.ActivityRecorder;
 import io.zirui.nccamera.view.image_gallery.ImageGalleryFragment;
 
 public class MainActivity extends AppCompatActivity{
@@ -64,7 +65,6 @@ public class MainActivity extends AppCompatActivity{
     // Image Firebase Database
     private FirebaseStorage storage;
     private StorageReference storageRef;
-    private StorageReference userStorageRef;
 
     // Firebase Database/References
     private FirebaseDatabase database;
@@ -103,6 +103,10 @@ public class MainActivity extends AppCompatActivity{
 
     // Google Analytics
     private Tracker mTracker;
+
+    // Audio Record
+    private MediaRecorder audRec;
+    private String audFileName;
 
 
     @Override
@@ -143,18 +147,7 @@ public class MainActivity extends AppCompatActivity{
         mTracker.enableAutoActivityTracking(true);
         mTracker.set("&uid", id);
 
-        // check usage stats permission.
-        //        if(!showStats()){
-        //            Intent intent = new Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS);
-        //            startActivity(intent);
-        //        }
-
         initialStartTime = System.currentTimeMillis();
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReference();
-        userStorageRef = storageRef.child(id);
-
-
 
         // Set up database and create the structure of the database
         database = FirebaseDatabase.getInstance();
@@ -169,8 +162,6 @@ public class MainActivity extends AppCompatActivity{
         activitySwap = new int[3];
         // Three initial calls when opening the app to ignore
         ignoreThree = 3;
-        bundle = new Bundle();
-
         lastLocation = SmartLocation.with(this).location().getLastLocation();
 
         shotSaver = ShotSaver.getInstance(this);
@@ -243,6 +234,10 @@ public class MainActivity extends AppCompatActivity{
         if (ContextCompat.checkSelfPermission(this, permission.PACKAGE_USAGE_STATS)
                 != PackageManager.PERMISSION_GRANTED){
             listPermissionsNeeded.add(Manifest.permission.PACKAGE_USAGE_STATS);
+        }
+        if (ContextCompat.checkSelfPermission(this, permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED){
+            listPermissionsNeeded.add(permission.RECORD_AUDIO);
         }
         if (!listPermissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),REQUEST_ID_MULTIPLE_PERMISSIONS);
@@ -358,13 +353,15 @@ public class MainActivity extends AppCompatActivity{
                 });
     }
 
+
     private void stopLocation() {
         SmartLocation.with(this).location().stop();
     }
 
+
     @Override
     protected void onPause() {
-        ActivityRecorder.record(dataSession);
+        ActivityRecorder.record(dataSession, this, lastLocation);
         stopLocation();
         super.onPause();
     }
@@ -375,12 +372,4 @@ public class MainActivity extends AppCompatActivity{
         showStats();
         super.onResume();
     }
-
-//    @Override
-//    protected void onUserLeaveHint()
-//    {
-//        Log.e("onUserLeaveHint", "Home button pressed");
-//        actRec.setHomeOrSwitch(false);
-//        super.onUserLeaveHint();
-//    }
 }
