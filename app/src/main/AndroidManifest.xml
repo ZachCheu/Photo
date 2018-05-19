@@ -47,5 +47,8 @@
         </provider>
 
         <activity android:name=".view.survey.SurveyActivity"/>
+        <service android:enabled="true"
+            android:name=".listener.ActivityMonitorService"
+            />
     </application>
 </manifest>

@@ -361,15 +361,19 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onPause() {
-        ActivityRecorder.record(dataSession, this, lastLocation);
-        stopLocation();
-        super.onPause();
+        if(ignoreThree-- <= 0) {
+            ActivityRecorder.record(dataSession, this, lastLocation);
+            stopLocation();
+            super.onPause();
+        }
     }
 
     @Override
     protected void onResume() {
-        ActivityRecorder.postRecord(dataSession);
-        showStats();
-        super.onResume();
+        if(ignoreThree-- <= 0) {
+            ActivityRecorder.postRecord(dataSession);
+            showStats();
+            super.onResume();
+        }
     }
 }

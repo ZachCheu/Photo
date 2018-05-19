@@ -52,7 +52,9 @@ public class ActivityMonitorService extends Service {
     private Location mLastLocation;
     private String audFileName;
     private String filePrefix = "Aud";
+    public ActivityMonitorService(){
 
+    }
 
     public static ActivityMonitorService getServiceInstance() {
         return serviceInstance;
