@@ -1,6 +1,8 @@
 package io.zirui.nccamera.listener;
 
 import android.app.ActivityManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
@@ -11,10 +13,13 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.view.View;
 
@@ -30,6 +35,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.Semaphore;
 
+import io.zirui.nccamera.R;
 import io.zirui.nccamera.storage.LocalSPData;
 
 public class ActivityMonitorService extends Service {
@@ -41,6 +47,7 @@ public class ActivityMonitorService extends Service {
     public View recordingIcon = null;
 
     private boolean isRecording = false;
+    private static final String TAG = "io.zirui.nccamera.listener";
     private Semaphore recordingMutex = new Semaphore(1);
     private MediaRecorder storedRecorder = null;
     private String storedFileName = null;
@@ -52,6 +59,9 @@ public class ActivityMonitorService extends Service {
     private Location mLastLocation;
     private String audFileName;
     private String filePrefix = "Aud";
+    private NotificationManager notificationManager;
+    private final String myBlog = "http://android-er.blogspot.com/";
+
     public ActivityMonitorService(){
 
     }
@@ -63,7 +73,10 @@ public class ActivityMonitorService extends Service {
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
+            Log.e("AudioNotification", "Running");
+            startAudioRecording();
             String currentApp = currentForegroundApp();
+            Log.e("AMService", lastApp + " " + currentApp + " " + isRecording + " " + isTargetApp(lastApp) + " " + isTargetApp(currentApp));
             if (lastApp == null) {
                 if (currentApp != null && isTargetApp(currentApp)) {
                     if (!isRecording) {
@@ -87,14 +100,14 @@ public class ActivityMonitorService extends Service {
                     }
                 }
             }
-
-            lastApp = currentApp;
-
-            SharedPreferences sp = getSharedPreference(getApplicationContext());
-            long startTime = sp.getLong(spTimer, 0);
-            if (startTime == 0 || System.currentTimeMillis() < (startTime + (1000 * 60 * 60 * 24 * 14))) {
-                durationTracker.postDelayed(this, millisBetweenUpdates);
-            }
+//
+//            lastApp = currentApp;
+//
+//            SharedPreferences sp = getSharedPreference(getApplicationContext());
+//            long startTime = sp.getLong(spTimer, 0);
+//            if (startTime == 0 || System.currentTimeMillis() < (startTime + (1000 * 60 * 60 * 24 * 14))) {
+//                durationTracker.postDelayed(this, millisBetweenUpdates);
+//            }
         }
     };
 
@@ -116,19 +129,55 @@ public class ActivityMonitorService extends Service {
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.e("AMService", "OnStartCommand");
+        this.startAudioRecording();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
     public void onCreate() {
+        Log.e("AMService", "OnCreate");
+        context = getApplicationContext();
         SharedPreferences sp = getSharedPreference(context);
         if (sp.getLong(spTimer, 0) == 0) {
             SharedPreferences.Editor editor = sp.edit();
             editor.putLong(spTimer, System.currentTimeMillis());
             editor.commit();
         }
-
         super.onCreate();
         final IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         ActivityMonitorService.serviceInstance = this;
-        durationTracker.postDelayed(runnable, millisBetweenUpdates);
+        //Log.d("AMService", "delay Runnable");
+        //durationTracker.postDelayed(runnable, millisBetweenUpdates);
+    }
+
+    public void createNotification() {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "default")
+                .setSmallIcon(R.drawable.ic_camera_alt_white_24dp)
+                .setContentTitle("Photo")
+                .setContentText("Recording Audio")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "ChannelName";
+            String description = "ChannelDesc";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("default", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+// notificationId is a unique int for each notification that you must define
+        notificationManager.notify(0, mBuilder.build());
     }
 
     public boolean isTargetApp(String name) {
@@ -183,6 +232,7 @@ public class ActivityMonitorService extends Service {
             final String audioFilename = dir.getAbsolutePath() + "/" + id + "_" + System.currentTimeMillis() + ".3gpp";
             final MediaRecorder recorder = new MediaRecorder();
 
+
             recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
@@ -190,6 +240,7 @@ public class ActivityMonitorService extends Service {
 
             try {
                 Log.e("Recording","Attempting to prepare and start rec");
+                createNotification();
                 recorder.prepare();
                 recorder.start();
                 isRecording = true;
@@ -235,6 +286,9 @@ public class ActivityMonitorService extends Service {
                 return;
             }
 
+
+
+            notificationManager.cancel(0);
             recorder.stop();
             recorder.reset();
             recorder.release();
