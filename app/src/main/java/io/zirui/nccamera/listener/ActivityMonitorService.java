@@ -116,12 +116,6 @@ public class ActivityMonitorService extends Service {
                 SP, Context.MODE_PRIVATE);
     }
 
-    public ActivityMonitorService(Context context, Location mLastLocation) {
-        this.context = context;
-        this.mLastLocation = mLastLocation;
-        id = LocalSPData.loadRandomID(context).substring(0, 7);
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
@@ -131,6 +125,7 @@ public class ActivityMonitorService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("AMService", "OnStartCommand");
+        mLastLocation = intent.getParcelableExtra("SmartLocation");
         this.startAudioRecording();
         return super.onStartCommand(intent, flags, startId);
     }
@@ -149,6 +144,7 @@ public class ActivityMonitorService extends Service {
         final IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         ActivityMonitorService.serviceInstance = this;
+        id = LocalSPData.loadRandomID(context).substring(0, 7);
         //Log.d("AMService", "delay Runnable");
         //durationTracker.postDelayed(runnable, millisBetweenUpdates);
     }
@@ -241,6 +237,7 @@ public class ActivityMonitorService extends Service {
             try {
                 Log.e("Recording","Attempting to prepare and start rec");
                 createNotification();
+                //showRecordingUI();
                 recorder.prepare();
                 recorder.start();
                 isRecording = true;
@@ -286,14 +283,13 @@ public class ActivityMonitorService extends Service {
                 return;
             }
 
-
-
             notificationManager.cancel(0);
             recorder.stop();
             recorder.reset();
             recorder.release();
 
             isRecording = false;
+            //removeRecordingUI();
 
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String locationStamp = mLastLocation != null ? mLastLocation.getLongitude() + "_" + mLastLocation.getLatitude(): "null";
@@ -319,4 +315,32 @@ public class ActivityMonitorService extends Service {
             recordingMutex.release();
         }
     }
+
+//    public void showRecordingUI() {
+//        if (recordingIcon == null) {
+//            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//            recordingIcon = inflater.inflate(R.layout.recording_layout, null);
+//            WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+//
+//            DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+//            WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+//                    WindowManager.LayoutParams.WRAP_CONTENT,
+//                    WindowManager.LayoutParams.WRAP_CONTENT,
+//                    WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
+//                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+//                    PixelFormat.TRANSLUCENT);
+//
+//            params.x = displayMetrics.widthPixels;
+//            params.y = -1 * displayMetrics.heightPixels;
+//            wm.addView(recordingIcon, params);
+//        }
+//    }
+//
+//    public void removeRecordingUI() {
+//        if (recordingIcon != null) {
+//            WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+//            wm.removeView(recordingIcon);
+//            recordingIcon = null;
+//        }
+//    }
 }

@@ -59,6 +59,10 @@ public class ImageViewPagerFragment extends Fragment{
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(currentPos);
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
     protected Shot getCurrentItem(){
         return adapter.shots.get(viewPager.getCurrentItem());

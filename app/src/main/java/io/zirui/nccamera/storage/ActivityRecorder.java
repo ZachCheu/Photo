@@ -16,6 +16,7 @@ public class ActivityRecorder {
         DatabaseReference createSession = dataSession.child("Gallery" + activityCounter[1]++);
         createSession.setValue(getDuration());
         activityStart = System.currentTimeMillis();
+
     }
     public static void postRecord(DatabaseReference dataSession){
         //coming back from either camera and images
