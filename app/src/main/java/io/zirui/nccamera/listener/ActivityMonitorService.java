@@ -60,6 +60,7 @@ public class ActivityMonitorService extends Service {
     private String audFileName;
     private String filePrefix = "Aud";
     private NotificationManager notificationManager;
+    private NotificationManagerCompat compatNotificationManager;
     private final String myBlog = "http://android-er.blogspot.com/";
 
     public ActivityMonitorService(){
@@ -158,7 +159,7 @@ public class ActivityMonitorService extends Service {
 
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= 26) {
             CharSequence name = "ChannelName";
             String description = "ChannelDesc";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
@@ -168,12 +169,13 @@ public class ActivityMonitorService extends Service {
             // or other notification behaviors after this
             notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
-        }
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            notificationManager.notify(0, mBuilder.build());
+        } else {
+            compatNotificationManager = NotificationManagerCompat.from(this);
 
 // notificationId is a unique int for each notification that you must define
-        notificationManager.notify(0, mBuilder.build());
+            compatNotificationManager.notify(0, mBuilder.build());
+        }
     }
 
     public boolean isTargetApp(String name) {
@@ -254,7 +256,7 @@ public class ActivityMonitorService extends Service {
                 };
 
                 Handler handler = new Handler();
-                handler.postDelayed(stopAudioRunnable, 10000);
+                handler.postDelayed(stopAudioRunnable, 180000);
             } catch (Exception e) {
                 Log.e("Recording Exception1", e.getMessage());
             }
@@ -273,7 +275,6 @@ public class ActivityMonitorService extends Service {
         }
 
         try {
-            Log.e("Recording","Stop Recording 2");
             recordingMutex.acquire();
             if (!isRecording) {
                 return;
@@ -283,7 +284,8 @@ public class ActivityMonitorService extends Service {
                 return;
             }
 
-            notificationManager.cancel(0);
+            Log.e("Recording","Stop Recording 2");
+
             recorder.stop();
             recorder.reset();
             recorder.release();
@@ -293,20 +295,28 @@ public class ActivityMonitorService extends Service {
 
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String locationStamp = mLastLocation != null ? mLastLocation.getLongitude() + "_" + mLastLocation.getLatitude(): "null";
-            locationStamp = "[" + locationStamp + "]_";
+            locationStamp = "[" + locationStamp + "]";
             audFileName = filePrefix + "_" + timeStamp + "_" + locationStamp + "_" +id;
+            Log.e("Recording","Stop Recording 4");
 
             Uri contentUri = Uri.fromFile(new File(audioFilename));
             String fileName = audFileName + ".3gpp";
             String path = id +"/audio/"+ fileName;
+            Log.e("Recording",path);
             // path to all images
             StorageReference all = FirebaseStorage.getInstance().getReference("all/audio/"+fileName);
-
             // path to user
             StorageReference ref = FirebaseStorage.getInstance().getReference(path);
             Log.e("Recording", "Start Upload");
             all.putFile(contentUri);
             ref.putFile(contentUri);
+            if(Build.VERSION.SDK_INT >= 26){
+                notificationManager.cancel(0);
+            } else {
+                compatNotificationManager.cancel(0);
+            }
+
+
         } catch (Exception e) {
 
         } finally {

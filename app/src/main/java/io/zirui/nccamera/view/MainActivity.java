@@ -332,6 +332,7 @@ public class MainActivity extends AppCompatActivity{
      * */
 
     private void startLocation() {
+        Log.d("NCSmartLocation", "Updating");
         provider = new LocationGooglePlayServicesProvider();
         provider.setCheckLocationSettings(true);
 
@@ -345,8 +346,6 @@ public class MainActivity extends AppCompatActivity{
                 .setAccuracy(trackingAccuracy)
                 .setDistance(trackingDistance)
                 .setInterval(mLocTrackingInterval);
-
-        //createNotification();
 
         smartLocation
                 .location(provider)
