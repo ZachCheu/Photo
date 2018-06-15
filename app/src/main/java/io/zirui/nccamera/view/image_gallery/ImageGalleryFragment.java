@@ -2,16 +2,19 @@ package io.zirui.nccamera.view.image_gallery;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.provider.MediaStore;
-import android.support.v4.app.Fragment;
+import android.location.Location;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,22 +23,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.gson.reflect.TypeToken;
-import com.surveymonkey.surveymonkeyandroidsdk.SMFeedbackFragment;
 import com.surveymonkey.surveymonkeyandroidsdk.SurveyMonkey;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.view.ActionMode;
-import android.widget.Toast;
-
-import org.json.JSONObject;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.zirui.nccamera.R;
+import io.zirui.nccamera.listener.ActivityMonitorService;
 import io.zirui.nccamera.listener.RecyclerItemClickListener;
 import io.zirui.nccamera.model.Shot;
 import io.zirui.nccamera.storage.LocalSPData;
@@ -44,11 +44,8 @@ import io.zirui.nccamera.storage.ShotLoader;
 import io.zirui.nccamera.storage.ShotSaver;
 import io.zirui.nccamera.storage.ShotSharer;
 import io.zirui.nccamera.utils.ModelUtils;
-import io.zirui.nccamera.view.MainActivity;
 import io.zirui.nccamera.view.image_viewpager.ImageViewPagerActivity;
 import io.zirui.nccamera.view.image_viewpager.ImageViewPagerFragment;
-import io.zirui.nccamera.view.survey.SurveyActivity;
-import io.zirui.nccamera.view.survey.SurveyFragment;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -56,6 +53,8 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
 
     public static final int REQ_CODE_IMAGE_DETAIL_EDIT = 101;
     public static final int MATRIX_NUMBER = 3;
+    private static Context mainActivityContext;
+    private static Location lastLocation;
 
     private ImageGalleryAdapter adapter;
 
@@ -71,7 +70,9 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
 
     @NonNull
-    public static ImageGalleryFragment newInstance(){
+    public static ImageGalleryFragment newInstance(Context context, Location location){
+        lastLocation = location;
+        mainActivityContext = context;
         return new ImageGalleryFragment();
     }
 
@@ -91,6 +92,9 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
         recyclerItemClickListener = new RecyclerItemClickListener(getContext(), recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+                Intent i = new Intent(getContext(), ActivityMonitorService.class);
+                i.putExtra("SmartLocation", lastLocation);
+                getContext().startService(i);
                 if (isMultiSelect)
                     multi_select(position);
             }

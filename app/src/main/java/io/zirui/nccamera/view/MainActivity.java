@@ -8,7 +8,9 @@ import android.app.usage.UsageStatsManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.media.MediaRecorder;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
@@ -18,7 +20,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +28,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -41,9 +46,11 @@ import io.nlopez.smartlocation.SmartLocation;
 import io.nlopez.smartlocation.location.config.LocationAccuracy;
 import io.nlopez.smartlocation.location.config.LocationParams;
 import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
+import io.zirui.nccamera.AnalyticsApplication;
 import io.zirui.nccamera.R;
 import io.zirui.nccamera.camera.Camera;
-import io.zirui.nccamera.AnalyticsApplication;
+import io.zirui.nccamera.listener.ActivityMonitorService;
+import io.zirui.nccamera.storage.ActivityRecorder;
 import io.zirui.nccamera.storage.LocalSPData;
 import io.zirui.nccamera.storage.ShotSaver;
 import io.zirui.nccamera.view.image_gallery.ImageGalleryFragment;
@@ -55,6 +62,16 @@ public class MainActivity extends AppCompatActivity{
     private static final String TAG = MainActivity.class.getSimpleName();
 
     ShotSaver shotSaver;
+
+    // Image Firebase Database
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+
+    // Firebase Database/References
+    private FirebaseDatabase database;
+    private DatabaseReference dataRef;
+    private DatabaseReference dataUser;
+    private DatabaseReference dataSession;
 
     @BindView(R.id.drawer) NavigationView navigationView;
     @BindView(R.id.fab) FloatingActionButton fab;
@@ -71,12 +88,27 @@ public class MainActivity extends AppCompatActivity{
 
     public String id;
     public String startDate;
+    public int sessionCount;
+
+    public long initialStartTime;
+    public long returnStartTime;
+
+    Bundle bundle;
+
+    // indicator for new database entries, so that information doesn't override
+    public int[] activitySwap;
+    public int ignoreThree;
 
     // Stats
     private long duration;
 
     // Google Analytics
     private Tracker mTracker;
+
+    // Audio Record
+    private MediaRecorder audRec;
+    private String audFileName;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +125,7 @@ public class MainActivity extends AppCompatActivity{
             LocalSPData.storeStartDate(this);
         }
         startDate = LocalSPData.loadStartDate(this);
+        sessionCount = LocalSPData.loadAndStoreSession(this);
 
         setSupportActionBar(toolbar);
         // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -115,12 +148,22 @@ public class MainActivity extends AppCompatActivity{
         mTracker.enableAutoActivityTracking(true);
         mTracker.set("&uid", id);
 
-        // check usage stats permission.
-        //        if(!showStats()){
-        //            Intent intent = new Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS);
-        //            startActivity(intent);
-        //        }
+        initialStartTime = System.currentTimeMillis();
+        ActivityRecorder.activityStart = initialStartTime;
 
+        // Set up database and create the structure of the database
+        database = FirebaseDatabase.getInstance();
+        dataRef = database.getReference();
+        dataUser = dataRef.child(id);
+        if(dataUser.getKey() != id){
+            dataUser.setValue(id);
+        }
+        String stringSessionCount = String.valueOf(sessionCount);
+        dataSession = dataUser.child(stringSessionCount);
+        dataSession.setValue(stringSessionCount);
+        activitySwap = new int[3];
+        // Three initial calls when opening the app to ignore
+        ignoreThree = 3;
         lastLocation = SmartLocation.with(this).location().getLastLocation();
 
         shotSaver = ShotSaver.getInstance(this);
@@ -130,11 +173,13 @@ public class MainActivity extends AppCompatActivity{
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ActivityRecorder.onCamera = true;
+                Intent i = new Intent(MainActivity.this, ActivityMonitorService.class);
+                i.putExtra("SmartLocation", lastLocation);
+                startService(i);
                 Camera.takePhoto(MainActivity.this, shotSaver, lastLocation);
             }
         });
-
-        // sendScreenImageName();
     }
 
     /**
@@ -176,12 +221,6 @@ public class MainActivity extends AppCompatActivity{
         return true;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        showStats();
-    }
-
     /**
      * Permissions.
      * */
@@ -201,6 +240,10 @@ public class MainActivity extends AppCompatActivity{
                 != PackageManager.PERMISSION_GRANTED){
             listPermissionsNeeded.add(Manifest.permission.PACKAGE_USAGE_STATS);
         }
+        if (ContextCompat.checkSelfPermission(this, permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED){
+            listPermissionsNeeded.add(permission.RECORD_AUDIO);
+        }
         if (!listPermissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),REQUEST_ID_MULTIPLE_PERMISSIONS);
             return false;
@@ -215,7 +258,7 @@ public class MainActivity extends AppCompatActivity{
     private void replaceFragment() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.content, ImageGalleryFragment.newInstance())
+                .add(R.id.content, ImageGalleryFragment.newInstance(getApplicationContext(), lastLocation))
                 .commit();
     }
 
@@ -289,6 +332,7 @@ public class MainActivity extends AppCompatActivity{
      * */
 
     private void startLocation() {
+        Log.d("NCSmartLocation", "Updating");
         provider = new LocationGooglePlayServicesProvider();
         provider.setCheckLocationSettings(true);
 
@@ -311,23 +355,30 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onLocationUpdated(Location location) {
                         lastLocation = location;
-                }
-        });
+                    }
+                });
+    }
+
+
+    private void stopLocation() {
+        SmartLocation.with(this).location().stop();
     }
 
     @Override
     protected void onPause() {
+        if(ignoreThree-- <= 0) {
+            ActivityRecorder.record(dataSession, this, lastLocation);
+            stopLocation();
+        }
         super.onPause();
-        stopLocation();
     }
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        startLocation();
-    }
-
-    private void stopLocation() {
-        SmartLocation.with(this).location().stop();
+    protected void onResume() {
+        if(ignoreThree-- <= 0) {
+            ActivityRecorder.postRecord(dataSession);
+            showStats();
+        }
+        super.onResume();
     }
 }
