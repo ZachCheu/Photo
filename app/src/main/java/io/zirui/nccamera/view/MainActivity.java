@@ -272,7 +272,15 @@ public class MainActivity extends AppCompatActivity{
         if (requestCode == Camera.REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             shotSaver.handleBigCameraPhoto();
         } else if (requestCode == LocalSPData.RQ_SM_CODE){
-            LocalSPData.storeSurveyRecord(this);
+            if(LocalSPData.isOnDate){
+                LocalSPData.storeDateTriggerRecord(this);
+                LocalSPData.isOnDate = false;
+                System.out.println("-----------trigger path: isOnDate");
+            }else{
+                LocalSPData.storeSurveyRecord(this);
+                System.out.println("-----------trigger path: !isOnDate");
+            }
+            // LocalSPData.storeSurveyRecord(this);
             Toast.makeText(this, "Thanks for your time!", Toast.LENGTH_LONG).show();
         }
     }

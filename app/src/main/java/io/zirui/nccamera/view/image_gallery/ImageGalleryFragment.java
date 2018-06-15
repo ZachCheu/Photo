@@ -1,6 +1,5 @@
 package io.zirui.nccamera.view.image_gallery;
 
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -43,6 +42,7 @@ import io.zirui.nccamera.storage.ShotDeletor;
 import io.zirui.nccamera.storage.ShotLoader;
 import io.zirui.nccamera.storage.ShotSaver;
 import io.zirui.nccamera.storage.ShotSharer;
+import io.zirui.nccamera.utils.DateUtils;
 import io.zirui.nccamera.utils.ModelUtils;
 import io.zirui.nccamera.view.image_viewpager.ImageViewPagerActivity;
 import io.zirui.nccamera.view.image_viewpager.ImageViewPagerFragment;
@@ -156,7 +156,9 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
         recyclerView.setAdapter(adapter);
         //&& !LocalSPData.loadSurveyRecord(getContext())
         int surveyTriggerPoint = LocalSPData.loadSurveyRecord(getContext());
+        int surveyDateTriggerPoint = LocalSPData.loadDateTriggerRecord(getContext());
         int surveyTriggerNumber = surveyTriggerPoint < LocalSPData.SURVEY_TRIGGER_NUMBERS.length ? LocalSPData.SURVEY_TRIGGER_NUMBERS[surveyTriggerPoint] : Integer.MAX_VALUE;
+        String surveyDateTriggerDate = surveyDateTriggerPoint < LocalSPData.SURVEY_TRIGGER_DATES.length ? LocalSPData.SURVEY_TRIGGER_DATES[surveyDateTriggerPoint] : null;
         if (adapter.data.size() > surveyTriggerNumber){
             String id = LocalSPData.loadRandomID(getContext());
             Map<String, String> dict = new HashMap<>();
@@ -164,7 +166,17 @@ public class ImageGalleryFragment extends Fragment implements LoaderManager.Load
             sdkInstance = new SurveyMonkey();
             //sdkInstance.onStart(getActivity(), LocalSPData.SAMPLE_APP, LocalSPData.RQ_SM_CODE, LocalSPData.SURVEY_HASH, new JSONObject(dict));
             sdkInstance.startSMFeedbackActivityForResult(getActivity(), LocalSPData.RQ_SM_CODE, LocalSPData.SURVEY_HASH, new JSONObject(dict));
+        }else if(DateUtils.compareDates(surveyDateTriggerDate)){
+            // System.out.println("-----------trigger date: " + surveyDateTriggerDate);
+            LocalSPData.isOnDate = true;
+            String id = LocalSPData.loadRandomID(getContext());
+            Map<String, String> dict = new HashMap<>();
+            dict.put("n", id);
+            sdkInstance = new SurveyMonkey();
+            //sdkInstance.onStart(getActivity(), LocalSPData.SAMPLE_APP, LocalSPData.RQ_SM_CODE, LocalSPData.SURVEY_HASH, new JSONObject(dict));
+            sdkInstance.startSMFeedbackActivityForResult(getActivity(), LocalSPData.RQ_SM_CODE, LocalSPData.SURVEY_HASH, new JSONObject(dict));
         }
+
     }
 
     @Override

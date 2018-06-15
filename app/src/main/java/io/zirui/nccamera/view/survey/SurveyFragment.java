@@ -69,12 +69,14 @@ public class SurveyFragment extends Fragment{
         if (requestCode == RQ_SM_CODE && resultCode == RESULT_OK){
             super.onActivityResult(requestCode, resultCode, intent);
             //String respondent = intent.getStringExtra("smRespondent");
-            LocalSPData.storeSurveyRecord(getContext());
-//            try {
-//                JSONObject surveyResponse = new JSONObject(respondent);
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
+            if(LocalSPData.isOnDate){
+                LocalSPData.storeDateTriggerRecord(getContext());
+                LocalSPData.isOnDate = false;
+                // System.out.println("-----------trigger path: isOnDate");
+            }else{
+                LocalSPData.storeSurveyRecord(getContext());
+                // System.out.println("-----------trigger path: !isOnDate");
+            }
             Toast t = Toast.makeText(getContext(), "Thanks for your time!", Toast.LENGTH_LONG);
             t.show();
             getActivity().finish();
