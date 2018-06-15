@@ -13,19 +13,25 @@ public class LocalSPData {
 
     public static final int RQ_SM_CODE = 2;
     public static final String SURVEY_HASH = "Q5GPCRQ"; // Should be replaced by real hash!!
-    public static final int SURVEY_TRIGGER_NUMBER = 3;
     public static final int[] SURVEY_TRIGGER_NUMBERS = new int[]{2, 4, 6};
-    // public static final Set<int[]> SURVEY_TRIGGER_NUMBERS_SET = new HashSet<>(Arrays.asList(SURVEY_TRIGGER_NUMBERS));
+
+    // trigger date
+    public static final String date = "2018-06-14 20:47:00";
+    public static final String[] SURVEY_TRIGGER_DATES = new String[]{"2018-06-14 21:23:00", "2018-06-14 23:23:00"};
 
     private static final String SP = "share_preference";
     private static final String SP_SURVEY_TIMESTAMP = "survey_timestamp";
-    private static final String SP_SURVEY_FINISHED = "survey_finished";
+    // private static final String SP_SURVEY_DATE_FINISHED = "survey_date_finished";
     private static final String SP_SURVEY_TRIGGER_POINT = "survey_trigger_point";
+    private static final String SP_SURVEY_DATE_TRIGGER_POINT = "survey_date_trigger_point";
     private static final String SP_RANDOM_ID = "random_id";
     private static final String SP_START_DATE = "start_date";
     private static final String SP_SESSION = "session_count";
 
     public static int currentTriggerPoint;
+    public static int currentDateTriggerPoint;
+
+    public static boolean isOnDate = false;
 
     private static SharedPreferences getSharedPreference(@NonNull Context context){
         return context.getApplicationContext().getSharedPreferences(
@@ -62,6 +68,22 @@ public class LocalSPData {
         SharedPreferences sp = getSharedPreference(context);
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(SP_RANDOM_ID, new RandomStringUtils().generateString());
+        editor.apply();
+    }
+
+    public static int loadDateTriggerRecord(@NonNull Context context){
+        SharedPreferences sp = getSharedPreference(context);
+        // return sp.getBoolean(SP_SURVEY_FINISHED, false);
+        currentDateTriggerPoint = sp.getInt(SP_SURVEY_DATE_TRIGGER_POINT, 0);
+        System.out.println("-----------trigger point: " + currentDateTriggerPoint);
+        return currentDateTriggerPoint;
+    }
+
+    public static void storeDateTriggerRecord(@NonNull Context context){
+        SharedPreferences sp = getSharedPreference(context);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(SP_SURVEY_TIMESTAMP, new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()));
+        editor.putInt(SP_SURVEY_DATE_TRIGGER_POINT, currentDateTriggerPoint + 1);
         editor.apply();
     }
 
